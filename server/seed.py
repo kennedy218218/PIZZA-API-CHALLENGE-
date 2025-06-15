@@ -1,4 +1,3 @@
-
 from server.app import app
 from server.models import db
 from server.models.restaurant import Restaurant
@@ -6,7 +5,7 @@ from server.models.pizza import Pizza
 from server.models.restaurant_pizza import RestaurantPizza
 
 with app.app_context():
-    # print("Seeding database")
+    
 
 
     Restaurant.query.delete()
@@ -38,4 +37,4 @@ with app.app_context():
     db.session.add_all([rp1, rp2, rp3, rp4, rp5 ])
     db.session.commit()
 
-    # print("Done seeding")
+    print("Done seeding")

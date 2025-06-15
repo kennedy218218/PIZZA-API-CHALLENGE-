@@ -1,4 +1,3 @@
-
 from server.app import db
 
 class Pizza(db.Model):

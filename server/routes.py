@@ -1,4 +1,3 @@
-
 from flask import Blueprint, jsonify, request
 from server.models import db
 from server.models.pizza import Pizza
