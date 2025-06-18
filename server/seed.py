@@ -1,40 +1,52 @@
-from server.app import app
-from server.models import db
+from server import create_app, db
 from server.models.restaurant import Restaurant
 from server.models.pizza import Pizza
 from server.models.restaurant_pizza import RestaurantPizza
 
-with app.app_context():
-    
+app = create_app()
 
+def seed_data():
+    with app.app_context():
+       
+        db.session.query(RestaurantPizza).delete()
+        db.session.query(Restaurant).delete()
+        db.session.query(Pizza).delete()
+        db.session.commit()
 
-    Restaurant.query.delete()
-    Pizza.query.delete()
-    RestaurantPizza.query.delete()
+       
+        restaurants = [
+            Restaurant(name="Pizza Palace", address="123 Main St"),
+            Restaurant(name="Italian Bistro", address="456 Oak Ave"),
+            Restaurant(name="Slice of Heaven", address="789 Pine Rd"),
+            Restaurant(name="Chicago Deep Dish", address="202 Windy City Blvd"),
+            Restaurant(name="New York Slice", address="303 Broadway Ave")
+        ]
+        db.session.add_all(restaurants)
+        db.session.commit()
 
-  
-    r1 = Restaurant(name="Big Square", address="Moi Avenue, Nairobi")
-    r2 = Restaurant(name="Chicken Inn", address="Thika Road Mall, Nairobi")
-    r3 = Restaurant(name="Java House", address="Westlands, Nairobi")
-    r4 = Restaurant(name="Tuskys Diner", address="Kilimani, Nairobi")
-    r5 = Restaurant(name="Mambo Italia", address="Karen, Nairobi")
-    db.session.add_all([r1, r2, r3, r4, r5 ])
-    db.session.commit()
+       
+        pizzas = [
+            Pizza(name="Margherita", ingredients="Tomato sauce, mozzarella, basil"),
+            Pizza(name="Pepperoni", ingredients="Tomato sauce, mozzarella, pepperoni"),
+            Pizza(name="BBQ Chicken", ingredients="BBQ sauce, mozzarella, chicken, red onions"),
+            Pizza(name="Buffalo Chicken", ingredients="Buffalo sauce, mozzarella, chicken, ranch drizzle"),
+            Pizza(name="Vegetarian", ingredients="Tomato sauce, mozzarella, bell peppers, mushrooms, onions")
+        ]
+        db.session.add_all(pizzas)
+        db.session.commit()
 
-    p1 = Pizza(name="Nyama Choma Deluxe", ingredients="Grilled Beef, Onions, Tomato")
-    p2 = Pizza(name="Kuku BBQ", ingredients="Chicken, BBQ Sauce, Green Pepper")
-    p3 = Pizza(name="Pilau Feast", ingredients="Beef Pilau Spices, Onions, Peppers")
-    p4 = Pizza(name="Sukuma Supreme", ingredients="Sukuma Wiki, Tomato, Onions, Cheese")
-    p5 = Pizza(name="Matoke Madness", ingredients="Matoke, Minced Beef, Cheese")
-    db.session.add_all([p1, p2, p3, p4, p5 ])
-    db.session.commit()
+        
+        restaurant_pizzas = [
+            RestaurantPizza(price=10, pizza_id=1, restaurant_id=1),
+            RestaurantPizza(price=12, pizza_id=2, restaurant_id=1),
+            RestaurantPizza(price=9, pizza_id=3, restaurant_id=2),
+            RestaurantPizza(price=11, pizza_id=1, restaurant_id=3),
+            RestaurantPizza(price=13, pizza_id=2, restaurant_id=3)
+        ]
+        db.session.add_all(restaurant_pizzas)
+        db.session.commit()
 
-    rp1 = RestaurantPizza(price=850, pizza_id=p1.id, restaurant_id=r1.id)
-    rp2 = RestaurantPizza(price=900, pizza_id=p2.id, restaurant_id=r2.id)
-    rp3 = RestaurantPizza(price=950, pizza_id=p3.id, restaurant_id=r3.id)
-    rp4 = RestaurantPizza(price=800, pizza_id=p4.id, restaurant_id=r4.id)
-    rp5 = RestaurantPizza(price=1000, pizza_id=p5.id, restaurant_id=r5.id)
-    db.session.add_all([rp1, rp2, rp3, rp4, rp5 ])
-    db.session.commit()
+        print("Database seeded successfully!")
 
-    print("Done seeding")
+if __name__ == '__main__':
+    seed_data()

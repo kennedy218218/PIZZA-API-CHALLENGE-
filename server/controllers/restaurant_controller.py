@@ -1,32 +1,31 @@
-from flask import Blueprint, request, jsonify
+
+from flask import jsonify, request
+from server import db
 from server.models.restaurant import Restaurant
-from server.models import db
+from server.models.restaurant_pizza import RestaurantPizza
 
-restaurant_bp = Blueprint('restaurants', __name__)
+def init_restaurant_routes(app):
+    @app.route('/restaurants', methods=['GET'])
+    def get_restaurants():
+        restaurants = Restaurant.query.all()
+        return jsonify([restaurant.to_dict() for restaurant in restaurants])
 
+    @app.route('/restaurants/<int:id>', methods=['GET'])
+    def get_restaurant(id):
+        restaurant = Restaurant.query.get(id)
+        if not restaurant:
+            return jsonify({"error": "Restaurant not found"}), 404
+        
+        restaurant_data = restaurant.to_dict()
+        restaurant_data['pizzas'] = [rp.pizza.to_dict() for rp in restaurant.restaurant_pizzas]
+        return jsonify(restaurant_data)
 
-@restaurant_bp.route('/restaurants', methods=['POST'])
-def create_restaurant():
-    data = request.get_json()
-    try:
-        new_restaurant = Restaurant(name=data['name'], address=data['address'])
-        db.session.add(new_restaurant)
-        db.session.commit()
-        return jsonify({
-            "id": new_restaurant.id,
-            "name": new_restaurant.name,
-            "address": new_restaurant.address
-        }), 201
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
-
-
-@restaurant_bp.route('/restaurants/<int:id>', methods=['DELETE'])
-def delete_restaurant(id):
-    restaurant = Restaurant.query.get(id)
-    if restaurant:
+    @app.route('/restaurants/<int:id>', methods=['DELETE'])
+    def delete_restaurant(id):
+        restaurant = Restaurant.query.get(id)
+        if not restaurant:
+            return jsonify({"error": "Restaurant not found"}), 404
+        
         db.session.delete(restaurant)
         db.session.commit()
         return '', 204
-    else:
-        return jsonify({"error": "Restaurant not found"}), 404
